@@ -3,13 +3,15 @@ package main
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/minhnghia2k3/GOssage/internal/storage"
 	"log"
 	"net/http"
 	"time"
 )
 
 type application struct {
-	config config
+	config  config
+	storage storage.Storage
 }
 
 type config struct {
