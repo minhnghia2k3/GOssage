@@ -11,6 +11,8 @@ services:
       POSTGRES_DB: gossage
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./scripts/db_init.sql:/docker-entrypoint-initdb.d/init.sql # run db_init when in first build
+
     ports:
       - "5432:5432"
 
