@@ -17,6 +17,7 @@ type application struct {
 type config struct {
 	addr     string
 	dbConfig dbConfig
+	env      string
 }
 
 type dbConfig struct {
@@ -25,6 +26,8 @@ type dbConfig struct {
 	maxIdleConns int
 	maxIdleTime  string
 }
+
+const version = "0.0.1"
 
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()

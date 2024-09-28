@@ -23,6 +23,7 @@ func main() {
 			maxIdleConns: env.GetInt("MAX_IDLE_CONNS", 30),
 			maxIdleTime:  env.GetString("MAX_IDLE_TIME", "15m"),
 		},
+		env: env.GetString("ENV", "development"),
 	}
 
 	// Initialize connection pool
