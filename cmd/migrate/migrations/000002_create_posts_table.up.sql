@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS posts
     content    VARCHAR(255) NOT NULL,
     tags       VARCHAR(100)[],
     created_at timestamptz default now(),
-    updated_at timestamptz default now()
+    updated_at timestamptz default now(),
+    version    int         default 0
 )

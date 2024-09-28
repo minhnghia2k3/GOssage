@@ -26,3 +26,6 @@ PHONY: migrate.down
 migrate.down:
 	migrate -database $(DATABASE_ADDR) -path $(MIGRATION_PATH) down
 
+PHONY: seed
+seed:
+	go run cmd/migrate/seed/main.go

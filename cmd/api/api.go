@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/minhnghia2k3/GOssage/internal/storage"
+	"github.com/minhnghia2k3/GOssage/internal/store"
 	"log"
 	"net/http"
 	"time"
@@ -11,7 +11,7 @@ import (
 
 type application struct {
 	config  config
-	storage storage.Storage
+	storage store.Storage
 }
 
 type config struct {
@@ -41,6 +41,17 @@ func (app *application) mount() http.Handler {
 	// Define routes
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/healthcheck", app.healthCheckHandler)
+
+		r.Route("/posts", func(r chi.Router) {
+			r.Post("/", app.createPostHandler)
+
+			r.Route("/{postID}", func(r chi.Router) {
+				r.Use(app.getPostMiddleware)
+				r.Get("/", app.getPostHandler)
+				r.Patch("/", app.updatePostHandler)
+				r.Delete("/", app.deletePostHandler)
+			})
+		})
 	})
 
 	return r

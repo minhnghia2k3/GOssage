@@ -4,7 +4,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/minhnghia2k3/GOssage/internal/database"
 	"github.com/minhnghia2k3/GOssage/internal/env"
-	"github.com/minhnghia2k3/GOssage/internal/storage"
+	"github.com/minhnghia2k3/GOssage/internal/store"
 	"log"
 )
 
@@ -40,7 +40,7 @@ func main() {
 	log.Printf("Database connection pool established\n")
 
 	// Initialize storage layer
-	s := storage.NewStorage(db)
+	s := store.NewStorage(db)
 
 	app := &application{
 		config:  cfg,

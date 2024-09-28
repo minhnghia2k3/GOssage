@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS comments
 CREATE INDEX ON "comments" ("content");
 
 ALTER TABLE "comments"
-    ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+    ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "comments"
-    ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
+    ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE;
