@@ -6,4 +6,8 @@ CREATE TABLE IF NOT EXISTS users
     password   bytea               NOT NULL,
     created_at timestamptz default now(),
     updated_at timestamptz default now()
-)
+);
+
+CREATE INDEX ON "users" ("username");
+
+CREATE INDEX ON "users" ("email");
