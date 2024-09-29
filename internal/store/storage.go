@@ -1,7 +1,6 @@
 package store
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -13,10 +12,8 @@ var (
 )
 
 type Storage struct {
-	Posts IPosts
-	Users interface {
-		Create(context.Context, *User) error
-	}
+	Posts    IPosts
+	Users    IUsers
 	Comments IComments
 }
 

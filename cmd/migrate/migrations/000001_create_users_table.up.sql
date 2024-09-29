@@ -7,7 +7,3 @@ CREATE TABLE IF NOT EXISTS users
     created_at timestamptz default now(),
     updated_at timestamptz default now()
 );
-
-CREATE INDEX ON "users" ("username");
-
-CREATE INDEX ON "users" ("email");

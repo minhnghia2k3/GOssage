@@ -3,8 +3,14 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 )
+
+type IUsers interface {
+	Create(context.Context, *User) error
+	GetByID(context.Context, int64) (*User, error)
+}
 
 type User struct {
 	ID        int64     `json:"id"`
@@ -42,4 +48,34 @@ func (s *UserStorage) Create(ctx context.Context, users *User) error {
 	}
 
 	return nil
+}
+
+func (s *UserStorage) GetByID(ctx context.Context, id int64) (*User, error) {
+	query := `
+	SELECT id, username, email, created_at, updated_at
+	FROM users
+	WHERE id = $1
+`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeOutDuration)
+	defer cancel()
+
+	var user User
+	err := s.db.QueryRowContext(ctx, query, id).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }
