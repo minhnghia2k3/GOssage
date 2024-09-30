@@ -24,7 +24,7 @@ migrate.up:
 
 PHONY: migrate.down
 migrate.down:
-	migrate -database $(DATABASE_ADDR) -path $(MIGRATION_PATH) down
+	migrate -database $(DATABASE_ADDR) -path $(MIGRATION_PATH) down $(COUNT)
 
 PHONY: seed
 seed:

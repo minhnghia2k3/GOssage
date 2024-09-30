@@ -58,9 +58,11 @@ func (app *application) mount() http.Handler {
 				r.Use(app.userContextMiddleware)
 
 				r.Get("/", app.getUserHandler)
-				//r.Put("/follows", app.followUserHandler)
-				//r.Put("/unfollows", app.unfollowUserHandler)
+				r.Put("/follows", app.followUserHandler)
+				r.Put("/unfollows", app.unfollowUserHandler)
 			})
+
+			r.Get("/feed", app.getUserFeedHandler)
 		})
 	})
 
