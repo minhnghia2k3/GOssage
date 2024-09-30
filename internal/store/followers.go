@@ -9,8 +9,8 @@ import (
 )
 
 type IFollower interface {
-	Follow(ctx context.Context, userID, followerID int64) error
-	Unfollow(ctx context.Context, userID, followerID int64) error
+	Follow(ctx context.Context, followerID, userID int64) error
+	Unfollow(ctx context.Context, followerID, userID int64) error
 }
 
 type Follower struct {
@@ -23,11 +23,10 @@ type FollowerStorage struct {
 	db *sql.DB
 }
 
-func (s *FollowerStorage) Follow(ctx context.Context, userID, followerID int64) error {
+func (s *FollowerStorage) Follow(ctx context.Context, followerID, userID int64) error {
 	query := `
-	INSERT INTO followers (user_id, follower_id)
-	VALUES ($1, $2)
-`
+		INSERT INTO followers (user_id, follower_id) VALUES ($1, $2)
+	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeOutDuration)
 	defer cancel()
@@ -49,11 +48,11 @@ func (s *FollowerStorage) Follow(ctx context.Context, userID, followerID int64) 
 	return nil
 }
 
-func (s *FollowerStorage) Unfollow(ctx context.Context, userID, followerID int64) error {
+func (s *FollowerStorage) Unfollow(ctx context.Context, followerID, userID int64) error {
 	query := `
-	DELETE FROM followers
-	WHERE user_id = $1 AND follower_id = $2
-`
+		DELETE FROM followers 
+		WHERE user_id = $1 AND follower_id = $2
+	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeOutDuration)
 	defer cancel()

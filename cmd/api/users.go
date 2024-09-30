@@ -17,40 +17,16 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type followUserPayload struct {
-	UserID int64 `json:"user_id" validate:"required,gte=1"`
-}
-
 func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request) {
-	var payload followUserPayload
-
 	followerUser := getUserFromContext(r)
 
-	err := readJSON(w, r, &payload)
-	if err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	err = Validate.Struct(payload)
+	followedID, err := parseID(r, "userID")
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	// Check if input userID is existed?
-	user, err := app.storage.Users.GetByID(context.Background(), payload.UserID)
-	if err != nil {
-		switch {
-		case errors.Is(err, store.ErrNotFound):
-			app.notFoundResponse(w, r, err)
-		default:
-			app.internalServerError(w, r, err)
-		}
-		return
-	}
-
-	err = app.storage.Followers.Follow(context.Background(), user.ID, followerUser.ID)
+	err = app.storage.Followers.Follow(r.Context(), followerUser.ID, followedID)
 	if err != nil {
 		switch {
 		case errors.Is(err, store.ErrConflict):
@@ -67,17 +43,15 @@ func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) unfollowUserHandler(w http.ResponseWriter, r *http.Request) {
-	var payload followUserPayload
-
 	followerUser := getUserFromContext(r)
 
-	err := readJSON(w, r, &payload)
+	unfollowedID, err := parseID(r, "userID")
 	if err != nil {
-		app.internalServerError(w, r, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	err = app.storage.Followers.Unfollow(context.Background(), payload.UserID, followerUser.ID)
+	err = app.storage.Followers.Unfollow(r.Context(), followerUser.ID, unfollowedID)
 	if err != nil {
 		switch {
 		case errors.Is(err, store.ErrNotFound):
@@ -93,14 +67,13 @@ func (app *application) unfollowUserHandler(w http.ResponseWriter, r *http.Reque
 
 func (app *application) userContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID, err := parseID(r, "userID")
+		userID := int64(1)
+		//if err != nil {
+		//	app.badRequestResponse(w, r, err)
+		//	return
+		//}
 
-		if err != nil {
-			app.badRequestResponse(w, r, err)
-			return
-		}
-
-		user, err := app.storage.Users.GetByID(context.Background(), userID)
+		user, err := app.storage.Users.GetByID(r.Context(), userID)
 
 		if err != nil {
 			switch {
