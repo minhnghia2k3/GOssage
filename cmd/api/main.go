@@ -14,9 +14,23 @@ func init() {
 	}
 }
 
+// @title						GopherSocial API
+// @description				API for GopherSocial, a social network for gophers
+// @termsOfService				http://swagger.io/terms/
+// @contact.name				API Support
+// @contact.url				http://www.swagger.io/support
+// @contact.email				support@swagger.io
+// @license.name				Apache 2.0
+// @license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+// @BasePath					/v1
+//
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
 func main() {
 	cfg := config{
-		addr: env.GetString("SERVER_ADDR", ":8080"),
+		addr:   env.GetString("SERVER_ADDR", ":8080"),
+		apiURL: env.GetString("EXTERNAL_URL", "localhost:8080"),
 		dbConfig: dbConfig{
 			dsn:          env.GetString("DATABASE_ADDR", "postgres://root:secret@localhost:5432/gossage?sslmode=disable"),
 			maxOpenConns: env.GetInt("MAX_OPEN_CONNS", 30),

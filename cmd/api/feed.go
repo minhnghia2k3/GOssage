@@ -6,6 +6,23 @@ import (
 	"net/http"
 )
 
+// @Summary		Fetches the user feed
+// @Description	fetched the user feed
+// @Tags			feed
+// @Accept			json
+// @Produce		json
+// @Param			limit	query		int		false	"limit"
+// @Param			since	query		string	false	"since"
+// @Param			until	query		string	false	"until"
+// @Param			offset	query		int		false	"offset"
+// @Param			sort	query		string	false	"sort"
+// @Param			search	query		string	false	"search"
+// @Success		200		{object}	store.Post
+// @Failure		400		{object}	error
+// @Failure		409		{object}	error
+// @Failure		404		{object}	error
+// @Failure		500		{object}	error
+// @Router			/users/feed [get]
 func (app *application) getUserFeedHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: Get current userID from auth
 	userID := int64(1)

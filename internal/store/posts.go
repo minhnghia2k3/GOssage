@@ -28,8 +28,8 @@ type Post struct {
 	Version   int       `json:"version"`
 	Comments  []Comment `json:"comments,omitempty"`
 	User      struct {
-		Username string `json:"username"`
-	} `json:"user"`
+		Username string `json:"username,omitempty"`
+	} `json:"user,omitempty"`
 }
 
 type PostStorage struct {

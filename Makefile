@@ -29,3 +29,7 @@ migrate.down:
 PHONY: seed
 seed:
 	go run cmd/migrate/seed/main.go
+
+PHONY: swag
+swag:
+	swag init -g cmd/api/main.go && swag fmt

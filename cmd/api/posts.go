@@ -26,6 +26,18 @@ const postCtx = "post"
 // getPostHandler gets post by provided post ID,
 // then get all its comments,
 // response result with http.StatusOK
+//
+//	@Summary		Get post
+//	@Description	get post by id
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			postID	path		int	true	"Post ID"
+//	@Success		200		{object}	store.Post
+//	@Failure		400		{object}	error
+//	@Failure		404		{object}	error
+//	@Failure		500		{object}	error
+//	@Router			/posts/{postID} [get]
 func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	post := r.Context().Value(postCtx).(*store.Post)
 
@@ -44,6 +56,17 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // createPostHandler creates new post using request body data.
+//
+//	@Summary		Create a post
+//	@Description	create a new post
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			post	body		CreatePostPayload	true	"Create post payload"
+//	@Success		201		{object}	store.Post
+//	@Failure		400		{object}	error
+//	@Failure		500		{object}	error
+//	@Router			/posts [post]
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreatePostPayload
 
@@ -78,6 +101,19 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 }
 
 // updatePostHandler updates an existing post with provided data
+//
+//	@Summary		Update post
+//	@Description	update post by id
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			postID	path		int					true	"Post ID"
+//	@Param			post	body		UpdatePostPayload	true	"Update post"
+//	@Success		200		{object}	store.Post
+//	@Failure		400		{object}	error
+//	@Failure		404		{object}	error
+//	@Failure		500		{object}	error
+//	@Router			/posts/{postID} [patch]
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload UpdatePostPayload
 	post := r.Context().Value(postCtx).(*store.Post)
@@ -114,6 +150,18 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 }
 
 // deletePostHandler delete a post by given post ID.
+//
+//	@Summary		Delete post
+//	@Description	delete post by id
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			postID	path		int	true	"Post ID"
+//	@Success		200		{object}	store.Post
+//	@Failure		400		{object}	error
+//	@Failure		404		{object}	error
+//	@Failure		500		{object}	error
+//	@Router			/posts/{postID} [delete]
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
 	postID, err := parseID(r, "postID")
 	if err != nil {
