@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/joho/godotenv"
 	"github.com/minhnghia2k3/GOssage/internal/database"
 	"github.com/minhnghia2k3/GOssage/internal/env"
 	"github.com/minhnghia2k3/GOssage/internal/store"
+	"go.uber.org/zap"
 	"log"
 )
 
@@ -40,6 +42,10 @@ func main() {
 		env: env.GetString("ENV", "development"),
 	}
 
+	// Initialize structured logger
+	logger := initLogger()
+	defer logger.Sync()
+
 	// Initialize connection pool
 	db, err := database.New(
 		cfg.dbConfig.dsn,
@@ -48,10 +54,10 @@ func main() {
 		cfg.dbConfig.maxIdleTime,
 	)
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal(err)
 	}
 	defer db.Close()
-	log.Printf("Database connection pool established\n")
+	logger.Info("Database connection pool established\n")
 
 	// Initialize storage layer
 	s := store.NewStorage(db)
@@ -59,9 +65,32 @@ func main() {
 	app := &application{
 		config:  cfg,
 		storage: s,
+		logger:  logger,
 	}
 
 	h := app.mount()
 
-	log.Fatal(app.serve(h))
+	logger.Fatal(app.serve(h))
+}
+
+func initLogger() *zap.SugaredLogger {
+	rawJSON := []byte(`{
+	  "level": "info",
+	  "encoding": "json",
+	  "outputPaths": ["stdout", "/tmp/logs"],
+	  "errorOutputPaths": ["stderr"],
+	  "encoderConfig": {
+	    "messageKey": "message",
+	    "levelKey": "level",
+	    "levelEncoder": "lowercase"
+	  }
+	}`)
+
+	var cfg zap.Config
+	if err := json.Unmarshal(rawJSON, &cfg); err != nil {
+		panic(err)
+	}
+	logger := zap.Must(cfg.Build()).Sugar()
+
+	return logger
 }

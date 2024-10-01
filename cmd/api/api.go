@@ -8,7 +8,7 @@ import (
 	_ "github.com/minhnghia2k3/GOssage/docs"
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	httpSwagger "github.com/swaggo/http-swagger"
-	"log"
+	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
@@ -16,6 +16,7 @@ import (
 type application struct {
 	config  config
 	storage store.Storage
+	logger  *zap.SugaredLogger
 }
 
 type config struct {
@@ -91,6 +92,6 @@ func (app *application) serve(h http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	log.Printf("Server is running on port %s\n", app.config.addr)
+	app.logger.Infow("Server is running...", "addr", app.config.addr, "env", app.config.env)
 	return srv.ListenAndServe()
 }
