@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	"log"
@@ -67,15 +68,21 @@ var comments = []string{
 	"Thanks for the information, very useful.",
 }
 
-func Seed(s store.Storage) {
+func Seed(s store.Storage, db *sql.DB) {
 	ctx := context.Background()
 	users := generateUsers(100)
+
+	tx, _ := db.BeginTx(ctx, nil)
 	for _, user := range users {
-		if err := s.Users.Create(ctx, user); err != nil {
+		if err := s.Users.Create(ctx, tx, user); err != nil {
+			_ = tx.Rollback()
 			log.Println("Error creating user:", err)
 			return
 		}
 	}
+
+	tx.Commit()
+
 	posts := generatePosts(200, users)
 	for _, post := range posts {
 		if err := s.Posts.Create(ctx, post); err != nil {
@@ -98,7 +105,6 @@ func generateUsers(num int) []*store.User {
 		users[i] = &store.User{
 			Username: usernames[i%len(usernames)] + fmt.Sprintf("%d", i),
 			Email:    usernames[i%len(usernames)] + fmt.Sprintf("%d", i) + "@example.com",
-			Password: "123123",
 		}
 	}
 	return users

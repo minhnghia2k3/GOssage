@@ -8,6 +8,7 @@ import (
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	"go.uber.org/zap"
 	"log"
+	"time"
 )
 
 func init() {
@@ -40,6 +41,9 @@ func main() {
 			maxIdleTime:  env.GetString("MAX_IDLE_TIME", "15m"),
 		},
 		env: env.GetString("ENV", "development"),
+		mail: mailConfig{
+			exp: 24 * time.Hour, // 1 day
+		},
 	}
 
 	// Initialize structured logger

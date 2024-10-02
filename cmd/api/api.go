@@ -24,6 +24,11 @@ type config struct {
 	dbConfig dbConfig
 	env      string
 	apiURL   string
+	mail     mailConfig
+}
+
+type mailConfig struct {
+	exp time.Duration
 }
 
 type dbConfig struct {
@@ -46,6 +51,7 @@ func (app *application) mount() http.Handler {
 
 	// Define routes
 	r.Route("/v1", func(r chi.Router) {
+
 		r.Get("/healthcheck", app.healthCheckHandler)
 
 		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
@@ -63,6 +69,8 @@ func (app *application) mount() http.Handler {
 		})
 
 		r.Route("/users", func(r chi.Router) {
+			r.Put("/activate/{token}", app.activeUserHandler)
+
 			r.Route("/{userID}", func(r chi.Router) {
 				r.Use(app.userContextMiddleware)
 
@@ -73,6 +81,11 @@ func (app *application) mount() http.Handler {
 
 			r.Get("/feed", app.getUserFeedHandler)
 		})
+
+		r.Route("/authentication", func(r chi.Router) {
+			r.Post("/users", app.registerUserHandler)
+		})
+
 	})
 
 	return r

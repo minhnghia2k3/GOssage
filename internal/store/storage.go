@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -27,4 +28,19 @@ func NewStorage(db *sql.DB) Storage {
 		Followers: &FollowerStorage{db: db},
 		Comments:  &CommentStorage{db: db},
 	}
+}
+
+func withTx(ctx context.Context, db *sql.DB, fn func(tx *sql.Tx) error) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	if err = fn(tx); err != nil {
+		// Rollback in case anything fails in the closure
+		_ = tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }
