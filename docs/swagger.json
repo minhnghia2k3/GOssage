@@ -16,6 +16,52 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/authentication/token": {
+            "post": {
+                "description": "Creates a token for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Creates a token",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateUserTokenPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/authentication/users": {
             "post": {
                 "description": "register a user and send activation email to them",
@@ -26,7 +72,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "authentications"
+                    "authentication"
                 ],
                 "summary": "Register user",
                 "parameters": [
@@ -87,6 +133,11 @@
         },
         "/posts": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "create a new post",
                 "consumes": [
                     "application/json"
@@ -129,6 +180,11 @@
         },
         "/posts/{postID}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get post by id",
                 "consumes": [
                     "application/json"
@@ -171,6 +227,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "delete post by id",
                 "consumes": [
                     "application/json"
@@ -213,6 +274,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "update post by id",
                 "consumes": [
                     "application/json"
@@ -307,6 +373,11 @@
         },
         "/users/feed": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "fetched the user feed",
                 "consumes": [
                     "application/json"
@@ -384,6 +455,11 @@
         },
         "/users/{userID}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get user by given id",
                 "consumes": [
                     "application/json"
@@ -428,6 +504,11 @@
         },
         "/users/{userID}/follows": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "authenticated user follow provided user",
                 "consumes": [
                     "application/json"
@@ -473,6 +554,11 @@
         },
         "/users/{userID}/unfollows": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "authenticated user unfollow provided user",
                 "consumes": [
                     "application/json"
@@ -537,6 +623,24 @@
                 }
             }
         },
+        "main.CreateUserTokenPayload": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 8
+                }
+            }
+        },
         "main.RegisterUserPayload": {
             "type": "object",
             "required": [
@@ -550,9 +654,8 @@
                     "maxLength": 255
                 },
                 "password": {
-                    "description": "TODO: TEST 72 BYTES",
                     "type": "string",
-                    "maxLength": 255,
+                    "maxLength": 72,
                     "minLength": 8
                 },
                 "username": {

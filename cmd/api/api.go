@@ -8,6 +8,7 @@ import (
 	"github.com/minhnghia2k3/GOssage/docs"
 	_ "github.com/minhnghia2k3/GOssage/docs"
 	"github.com/minhnghia2k3/GOssage/internal"
+	"github.com/minhnghia2k3/GOssage/internal/auth"
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
@@ -16,10 +17,11 @@ import (
 )
 
 type application struct {
-	config  config
-	storage store.Storage
-	logger  *zap.SugaredLogger
-	mailer  internal.Client
+	config        config
+	storage       store.Storage
+	logger        *zap.SugaredLogger
+	mailer        internal.Client
+	authenticator auth.Authenticator
 }
 
 type config struct {
@@ -29,6 +31,17 @@ type config struct {
 	apiURL      string
 	mail        mailConfig
 	frontendURL string
+	auth        authConfig
+}
+
+type authConfig struct {
+	token tokenConfig
+}
+
+type tokenConfig struct {
+	secret string
+	exp    time.Duration
+	iss    string
 }
 
 type mailConfig struct {
@@ -80,6 +93,7 @@ func (app *application) mount() http.Handler {
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
 		r.Route("/posts", func(r chi.Router) {
+			r.Use(app.AuthMiddleware)
 			r.Post("/", app.createPostHandler)
 
 			r.Route("/{postID}", func(r chi.Router) {
@@ -94,18 +108,21 @@ func (app *application) mount() http.Handler {
 			r.Put("/activate/{token}", app.activeUserHandler)
 
 			r.Route("/{userID}", func(r chi.Router) {
-				r.Use(app.userContextMiddleware)
-
+				r.Use(app.AuthMiddleware)
 				r.Get("/", app.getUserHandler)
 				r.Put("/follows", app.followUserHandler)
 				r.Put("/unfollows", app.unfollowUserHandler)
 			})
 
-			r.Get("/feed", app.getUserFeedHandler)
+			r.Group(func(r chi.Router) {
+				r.Use(app.AuthMiddleware)
+				r.Get("/feed", app.getUserFeedHandler)
+			})
 		})
 
 		r.Route("/authentication", func(r chi.Router) {
 			r.Post("/users", app.registerUserHandler)
+			r.Post("/token", app.createTokenHandler)
 		})
 
 	})

@@ -11,6 +11,9 @@ import (
 // @Tags			feed
 // @Accept			json
 // @Produce		json
+//
+//	@Security		ApiKeyAuth
+//
 // @Param			limit	query		int		false	"limit"
 // @Param			since	query		string	false	"since"
 // @Param			until	query		string	false	"until"
@@ -24,8 +27,8 @@ import (
 // @Failure		500		{object}	error
 // @Router			/users/feed [get]
 func (app *application) getUserFeedHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Get current userID from auth
-	userID := int64(1)
+	user := r.Context().Value(userCtx).(*store.User)
+	userID := user.ID
 
 	p := store.PaginatedFeedQuery{
 		Limit:  20,

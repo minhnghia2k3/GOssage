@@ -24,6 +24,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/authentication/token": {
+            "post": {
+                "description": "Creates a token for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Creates a token",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateUserTokenPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/authentication/users": {
             "post": {
                 "description": "register a user and send activation email to them",
@@ -34,7 +80,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "authentications"
+                    "authentication"
                 ],
                 "summary": "Register user",
                 "parameters": [
@@ -95,6 +141,11 @@ const docTemplate = `{
         },
         "/posts": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "create a new post",
                 "consumes": [
                     "application/json"
@@ -137,6 +188,11 @@ const docTemplate = `{
         },
         "/posts/{postID}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get post by id",
                 "consumes": [
                     "application/json"
@@ -179,6 +235,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "delete post by id",
                 "consumes": [
                     "application/json"
@@ -221,6 +282,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "update post by id",
                 "consumes": [
                     "application/json"
@@ -315,6 +381,11 @@ const docTemplate = `{
         },
         "/users/feed": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "fetched the user feed",
                 "consumes": [
                     "application/json"
@@ -392,6 +463,11 @@ const docTemplate = `{
         },
         "/users/{userID}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get user by given id",
                 "consumes": [
                     "application/json"
@@ -436,6 +512,11 @@ const docTemplate = `{
         },
         "/users/{userID}/follows": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "authenticated user follow provided user",
                 "consumes": [
                     "application/json"
@@ -481,6 +562,11 @@ const docTemplate = `{
         },
         "/users/{userID}/unfollows": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "authenticated user unfollow provided user",
                 "consumes": [
                     "application/json"
@@ -545,6 +631,24 @@ const docTemplate = `{
                 }
             }
         },
+        "main.CreateUserTokenPayload": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 8
+                }
+            }
+        },
         "main.RegisterUserPayload": {
             "type": "object",
             "required": [
@@ -558,9 +662,8 @@ const docTemplate = `{
                     "maxLength": 255
                 },
                 "password": {
-                    "description": "TODO: TEST 72 BYTES",
                     "type": "string",
-                    "maxLength": 255,
+                    "maxLength": 72,
                     "minLength": 8
                 },
                 "username": {

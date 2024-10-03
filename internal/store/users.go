@@ -14,6 +14,7 @@ import (
 
 type IUsers interface {
 	GetByID(ctx context.Context, id int64) (*User, error)
+	GetByEmail(ctx context.Context, email string) (*User, error)
 	Create(ctx context.Context, tx *sql.Tx, user *User) error
 	CreateAndInvite(ctx context.Context, user *User, token string, expiryDuration time.Duration) error
 	Activate(ctx context.Context, token string) error
@@ -116,7 +117,7 @@ func (s *UserStorage) GetByID(ctx context.Context, id int64) (*User, error) {
 	query := `
 	SELECT id, username, email, created_at, updated_at
 	FROM users
-	WHERE id = $1
+	WHERE id = $1 AND is_active=true
 `
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeOutDuration)
 	defer cancel()
@@ -142,6 +143,38 @@ func (s *UserStorage) GetByID(ctx context.Context, id int64) (*User, error) {
 	return &user, nil
 }
 
+func (s *UserStorage) GetByEmail(ctx context.Context, email string) (*User, error) {
+	query := `
+	SELECT id, username, email, created_at, updated_at, is_active
+	FROM users 
+	WHERE email = $1 AND is_active=true
+`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeOutDuration)
+	defer cancel()
+
+	var u User
+	err := s.db.QueryRowContext(ctx, query, email).Scan(
+		&u.ID,
+		&u.Username,
+		&u.Email,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+		&u.IsActive,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &u, nil
+}
+
 func (s *UserStorage) Delete(ctx context.Context, id int64) error {
 	// Delete user and its invitations
 	return withTx(ctx, s.db, func(tx *sql.Tx) error {
@@ -160,7 +193,6 @@ func (s *UserStorage) Delete(ctx context.Context, id int64) error {
 }
 
 func (p *password) Set(password string) error {
-	// TODO: test password > 72 bytes
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
 		return err

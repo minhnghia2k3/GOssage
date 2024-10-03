@@ -32,11 +32,12 @@ const postCtx = "post"
 //	@Tags			posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			postID	path		int	true	"Post ID"
-//	@Success		200		{object}	store.Post
-//	@Failure		400		{object}	error
-//	@Failure		404		{object}	error
-//	@Failure		500		{object}	error
+//	@Param			postID	path	int	true	"Post ID"
+//	@Security		ApiKeyAuth
+//	@Success		200	{object}	store.Post
+//	@Failure		400	{object}	error
+//	@Failure		404	{object}	error
+//	@Failure		500	{object}	error
 //	@Router			/posts/{postID} [get]
 func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	post := r.Context().Value(postCtx).(*store.Post)
@@ -62,13 +63,16 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 //	@Tags			posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			post	body		CreatePostPayload	true	"Create post payload"
-//	@Success		201		{object}	store.Post
-//	@Failure		400		{object}	error
-//	@Failure		500		{object}	error
+//	@Param			post	body	CreatePostPayload	true	"Create post payload"
+//	@Security		ApiKeyAuth
+//	@Success		201	{object}	store.Post
+//	@Failure		400	{object}	error
+//	@Failure		500	{object}	error
 //	@Router			/posts [post]
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreatePostPayload
+
+	user := r.Context().Value(userCtx).(*store.User)
 
 	err := readJSON(w, r, &payload)
 	if err != nil {
@@ -82,8 +86,7 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	post := store.Post{
-		// TODO: change after auth
-		UserID:  1,
+		UserID:  user.ID,
 		Title:   payload.Title,
 		Content: payload.Content,
 		Tags:    payload.Tags,
@@ -107,12 +110,13 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 //	@Tags			posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			postID	path		int					true	"Post ID"
-//	@Param			post	body		UpdatePostPayload	true	"Update post"
-//	@Success		200		{object}	store.Post
-//	@Failure		400		{object}	error
-//	@Failure		404		{object}	error
-//	@Failure		500		{object}	error
+//	@Param			postID	path	int					true	"Post ID"
+//	@Param			post	body	UpdatePostPayload	true	"Update post"
+//	@Security		ApiKeyAuth
+//	@Success		200	{object}	store.Post
+//	@Failure		400	{object}	error
+//	@Failure		404	{object}	error
+//	@Failure		500	{object}	error
 //	@Router			/posts/{postID} [patch]
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload UpdatePostPayload
@@ -156,11 +160,12 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 //	@Tags			posts
 //	@Accept			json
 //	@Produce		json
-//	@Param			postID	path		int	true	"Post ID"
-//	@Success		200		{object}	store.Post
-//	@Failure		400		{object}	error
-//	@Failure		404		{object}	error
-//	@Failure		500		{object}	error
+//	@Param			postID	path	int	true	"Post ID"
+//	@Security		ApiKeyAuth
+//	@Success		200	{object}	store.Post
+//	@Failure		400	{object}	error
+//	@Failure		404	{object}	error
+//	@Failure		500	{object}	error
 //	@Router			/posts/{postID} [delete]
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
 	postID, err := parseID(r, "postID")

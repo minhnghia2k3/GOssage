@@ -1,14 +1,11 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	"net/http"
 )
-
-const userCtx = "users"
 
 // getUserHandler gets user by id
 //
@@ -17,11 +14,12 @@ const userCtx = "users"
 //	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Param			userID	path		int	true	"User ID"
-//	@Success		200		{object}	store.User
-//	@Failure		400		{object}	error
-//	@Failure		404		{object}	error
-//	@Failure		500		{object}	error
+//	@Param			userID	path	int	true	"User ID"
+//	@Security		ApiKeyAuth
+//	@Success		200	{object}	store.User
+//	@Failure		400	{object}	error
+//	@Failure		404	{object}	error
+//	@Failure		500	{object}	error
 //	@Router			/users/{userID} [get]
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromContext(r)
@@ -37,6 +35,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 // @Accept			json
 // @Produce		json
 // @Param			userID	path	int	true	"User ID"
+// @Security		ApiKeyAuth
 // @Success		204
 // @Failure		400	{object}	error
 // @Failure		409	{object}	error
@@ -74,6 +73,7 @@ func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request
 // @Accept			json
 // @Produce		json
 // @Param			userID	path	int	true	"User ID"
+// @Security		ApiKeyAuth
 // @Success		204
 // @Failure		400	{object}	error
 // @Failure		404	{object}	error
@@ -126,32 +126,6 @@ func (app *application) activeUserHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-}
-
-func (app *application) userContextMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID := int64(1)
-		//if err != nil {
-		//	app.badRequestResponse(w, r, err)
-		//	return
-		//}
-
-		user, err := app.storage.Users.GetByID(r.Context(), userID)
-
-		if err != nil {
-			switch {
-			case errors.Is(err, store.ErrNotFound):
-				app.notFoundResponse(w, r, err)
-			default:
-				app.internalServerError(w, r, err)
-			}
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), userCtx, user)
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }
 
 func getUserFromContext(r *http.Request) *store.User {

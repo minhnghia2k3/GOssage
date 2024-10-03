@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/joho/godotenv"
+	"github.com/minhnghia2k3/GOssage/internal/auth"
 	"github.com/minhnghia2k3/GOssage/internal/database"
 	"github.com/minhnghia2k3/GOssage/internal/env"
 	"github.com/minhnghia2k3/GOssage/internal/mailer"
@@ -53,6 +54,13 @@ func main() {
 			},
 		},
 		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:3000"),
+		auth: authConfig{
+			token: tokenConfig{
+				secret: env.GetString("JWT_SECRET_KEY", "example"),
+				exp:    3 * 24 * time.Hour, // 3 days
+				iss:    "GOssage",
+			},
+		},
 	}
 
 	// Initialize structured logger
@@ -84,11 +92,19 @@ func main() {
 		cfg.mail.dialer.port,
 	)
 
+	// Initialize JWTAuthenticator
+	jwtAuthenticator := auth.NewJWTAuthenticator(
+		cfg.auth.token.secret,
+		cfg.auth.token.iss,
+		cfg.auth.token.iss,
+	)
+
 	app := &application{
-		config:  cfg,
-		storage: s,
-		logger:  logger,
-		mailer:  m,
+		config:        cfg,
+		storage:       s,
+		logger:        logger,
+		mailer:        m,
+		authenticator: jwtAuthenticator,
 	}
 
 	h := app.mount()
