@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/minhnghia2k3/GOssage/docs"
 	_ "github.com/minhnghia2k3/GOssage/docs"
+	"github.com/minhnghia2k3/GOssage/internal"
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
@@ -17,18 +18,29 @@ type application struct {
 	config  config
 	storage store.Storage
 	logger  *zap.SugaredLogger
+	mailer  internal.Client
 }
 
 type config struct {
-	addr     string
-	dbConfig dbConfig
-	env      string
-	apiURL   string
-	mail     mailConfig
+	addr        string
+	dbConfig    dbConfig
+	env         string
+	apiURL      string
+	mail        mailConfig
+	frontendURL string
 }
 
 type mailConfig struct {
-	exp time.Duration
+	exp       time.Duration
+	fromEmail string
+	dialer    dialer
+}
+
+type dialer struct {
+	host     string
+	port     int
+	username string
+	password string
 }
 
 type dbConfig struct {

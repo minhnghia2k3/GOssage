@@ -17,6 +17,7 @@ type IUsers interface {
 	Create(ctx context.Context, tx *sql.Tx, user *User) error
 	CreateAndInvite(ctx context.Context, user *User, token string, expiryDuration time.Duration) error
 	Activate(ctx context.Context, token string) error
+	Delete(ctx context.Context, id int64) error
 }
 
 type User struct {
@@ -84,8 +85,6 @@ func (s *UserStorage) CreateAndInvite(ctx context.Context, user *User, token str
 			return err
 		}
 
-		// TODO 3. Send email
-
 		return nil
 	})
 }
@@ -143,6 +142,23 @@ func (s *UserStorage) GetByID(ctx context.Context, id int64) (*User, error) {
 	return &user, nil
 }
 
+func (s *UserStorage) Delete(ctx context.Context, id int64) error {
+	// Delete user and its invitations
+	return withTx(ctx, s.db, func(tx *sql.Tx) error {
+		err := s.deleteUserInvitation(ctx, tx, id)
+		if err != nil {
+			return err
+		}
+
+		err = s.delete(ctx, tx, id)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
 func (p *password) Set(password string) error {
 	// TODO: test password > 72 bytes
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -152,6 +168,21 @@ func (p *password) Set(password string) error {
 
 	p.text = &password
 	p.hash = bytes
+	return nil
+}
+
+func (s *UserStorage) delete(ctx context.Context, tx *sql.Tx, id int64) error {
+	query := `DELETE FROM users WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeOutDuration)
+	defer cancel()
+
+	_, err := tx.ExecContext(ctx, query, id)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/minhnghia2k3/GOssage/internal/database"
 	"github.com/minhnghia2k3/GOssage/internal/env"
+	"github.com/minhnghia2k3/GOssage/internal/mailer"
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	"go.uber.org/zap"
 	"log"
@@ -42,8 +43,16 @@ func main() {
 		},
 		env: env.GetString("ENV", "development"),
 		mail: mailConfig{
-			exp: 24 * time.Hour, // 1 day
+			exp:       24 * time.Hour, // 1 day
+			fromEmail: env.GetString("FROM_EMAIL", ""),
+			dialer: dialer{
+				host:     env.GetString("MAILTRAP_HOST", "sandbox.smtp.mailtrap.io"),
+				port:     env.GetInt("MAILTRAP_PORT", 2525),
+				username: env.GetString("MAILTRAP_USERNAME", ""),
+				password: env.GetString("MAILTRAP_PASSWORD", ""),
+			},
 		},
+		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:3000"),
 	}
 
 	// Initialize structured logger
@@ -66,10 +75,20 @@ func main() {
 	// Initialize storage layer
 	s := store.NewStorage(db)
 
+	// Initialize mailer
+	m := mailer.NewMailer(
+		cfg.mail.fromEmail,
+		cfg.mail.dialer.host,
+		cfg.mail.dialer.username,
+		cfg.mail.dialer.password,
+		cfg.mail.dialer.port,
+	)
+
 	app := &application{
 		config:  cfg,
 		storage: s,
 		logger:  logger,
+		mailer:  m,
 	}
 
 	h := app.mount()

@@ -1,0 +1,31 @@
+{{define "subject"}} Finish Registration with GOssage {{end}}
+
+{{define "plainBody"}}
+Hi {{.Username}},
+Thanks for signing up for GOssage. We're excited to have you on board!
+Before you can start using GOssage, you need to confirm your email address. Click the link below to confirm your email address:
+{{.ActivationURL}}
+If you want to activate your account manually copy and paste the code from the link above
+If you didn't sign up for GOssage, you can safely ignore this email.
+Thanks,
+The GOssage Team
+{{end}}
+
+{{define "htmlBody"}}
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+  <body> <h2>Hi {{.Username}},</h2>
+    <p>Thanks for signing up for GOssage. We're excited to have you on board!</p>
+    <p>Before you can start using GOssage, you need to confirm your email address. Click the link below to confirm your email address:</p>
+    <p><a href="{{.ActivationURL}}">Activation link</a></p>
+    <p>If you want to activate your account manually copy and paste the code from the link above</p>
+    <p>If you didn't sign up for GOssage, you can safely ignore this email.</p>
+    <p>Thanks,</p>
+    <p>The GOssage Team</p>
+  </body>
+</html>
+{{end}}
