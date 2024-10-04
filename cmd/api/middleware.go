@@ -59,24 +59,19 @@ func (app *application) AuthMiddleware(next http.Handler) http.Handler {
 
 		subject, err := token.Claims.GetSubject()
 		if err != nil {
-			app.internalServerError(w, r, err)
+			app.unauthorizedErrorResponse(w, r, err)
 			return
 		}
 
 		userID, err := strconv.ParseInt(subject, 10, 64)
 		if err != nil {
-			app.internalServerError(w, r, err)
+			app.unauthorizedErrorResponse(w, r, err)
 			return
 		}
 
-		user, err := app.storage.Users.GetByID(r.Context(), userID)
+		user, err := app.getUser(r.Context(), userID)
 		if err != nil {
-			switch {
-			case errors.Is(err, store.ErrNotFound):
-				app.notFoundResponse(w, r, err)
-			default:
-				app.internalServerError(w, r, err)
-			}
+			app.unauthorizedErrorResponse(w, r, err)
 			return
 		}
 
@@ -84,6 +79,33 @@ func (app *application) AuthMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (app *application) getUser(ctx context.Context, userID int64) (*store.User, error) {
+	if !app.config.redisConfig.enabled {
+		return app.storage.Users.GetByID(ctx, userID)
+	}
+
+	// Get user from cache
+	user, err := app.cacheStorage.Users.Get(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set user to cache server if not existed
+	if user == nil {
+		user, err = app.storage.Users.GetByID(ctx, userID)
+		if err != nil {
+			return nil, err
+		}
+
+		err = app.cacheStorage.Users.Set(ctx, user)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return user, nil
 }
 
 func (app *application) checkPostOwnerShip(role string, next http.HandlerFunc) http.HandlerFunc {

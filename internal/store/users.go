@@ -118,7 +118,7 @@ func (s *UserStorage) Activate(ctx context.Context, token string) error {
 
 func (s *UserStorage) GetByID(ctx context.Context, id int64) (*User, error) {
 	query := `
-	SELECT users.id, username, email, created_at, updated_at, is_active, roles.*
+	SELECT users.id, username, email, created_at, updated_at, is_active, role_id, roles.*
 	FROM users
 	INNER JOIN roles ON users.role_id = roles.id
 	WHERE users.id = $1 AND is_active=true
@@ -134,6 +134,7 @@ func (s *UserStorage) GetByID(ctx context.Context, id int64) (*User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.IsActive,
+		&user.RoleID,
 		&user.Role.ID,
 		&user.Role.Name,
 		&user.Role.Level,

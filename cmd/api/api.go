@@ -10,6 +10,7 @@ import (
 	"github.com/minhnghia2k3/GOssage/internal"
 	"github.com/minhnghia2k3/GOssage/internal/auth"
 	"github.com/minhnghia2k3/GOssage/internal/store"
+	"github.com/minhnghia2k3/GOssage/internal/store/cache"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 	"net/http"
@@ -19,6 +20,7 @@ import (
 type application struct {
 	config        config
 	storage       store.Storage
+	cacheStorage  *cache.Storage
 	logger        *zap.SugaredLogger
 	mailer        internal.Client
 	authenticator auth.Authenticator
@@ -32,6 +34,14 @@ type config struct {
 	mail        mailConfig
 	frontendURL string
 	auth        authConfig
+	redisConfig redisConfig
+}
+
+type redisConfig struct {
+	addr    string
+	pw      string
+	db      int
+	enabled bool
 }
 
 type authConfig struct {

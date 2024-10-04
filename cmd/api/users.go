@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	"net/http"
+	"strconv"
 )
 
 // getUserHandler gets user by id
@@ -22,9 +23,26 @@ import (
 //	@Failure		500	{object}	error
 //	@Router			/users/{userID} [get]
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	user := getUserFromContext(r)
+	param := chi.URLParam(r, "userID")
 
-	if err := app.jsonResponse(w, http.StatusOK, user); err != nil {
+	userID, err := strconv.ParseInt(param, 10, 64)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	user, err := app.getUser(r.Context(), userID)
+	if err != nil {
+		switch {
+		case errors.Is(err, store.ErrNotFound):
+			app.notFoundResponse(w, r, err)
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	if err = app.jsonResponse(w, http.StatusOK, user); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }

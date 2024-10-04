@@ -8,6 +8,8 @@ import (
 	"github.com/minhnghia2k3/GOssage/internal/env"
 	"github.com/minhnghia2k3/GOssage/internal/mailer"
 	"github.com/minhnghia2k3/GOssage/internal/store"
+	"github.com/minhnghia2k3/GOssage/internal/store/cache"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"log"
 	"time"
@@ -61,6 +63,12 @@ func main() {
 				iss:    "GOssage",
 			},
 		},
+		redisConfig: redisConfig{
+			addr:    env.GetString("REDIS_ADDR", "localhost:6379"),
+			pw:      env.GetString("REDIS_PASSWORD", ""),
+			db:      env.GetInt("REDIS_DATABASE", 0),
+			enabled: env.GetBool("REDIS_ENABLED", false),
+		},
 	}
 
 	// Initialize structured logger
@@ -99,12 +107,23 @@ func main() {
 		cfg.auth.token.iss,
 	)
 
+	// Initialize Redis Storage
+	var rdb *redis.Client
+	if cfg.redisConfig.enabled {
+		rdb = cache.NewRedisClient(cfg.redisConfig.addr, cfg.redisConfig.pw, cfg.redisConfig.db)
+		logger.Info("redis cache connection established")
+		defer rdb.Close()
+	}
+
+	redisStorage := cache.NewRedisStorage(rdb)
+
 	app := &application{
 		config:        cfg,
 		storage:       s,
 		logger:        logger,
 		mailer:        m,
 		authenticator: jwtAuthenticator,
+		cacheStorage:  redisStorage,
 	}
 
 	h := app.mount()
