@@ -19,6 +19,7 @@ type Storage struct {
 	Users     IUsers
 	Followers IFollower
 	Comments  IComments
+	Roles     IRoles
 }
 
 func NewStorage(db *sql.DB) Storage {
@@ -27,6 +28,7 @@ func NewStorage(db *sql.DB) Storage {
 		Users:     &UserStorage{db: db},
 		Followers: &FollowerStorage{db: db},
 		Comments:  &CommentStorage{db: db},
+		Roles:     &RoleStorage{db: db},
 	}
 }
 

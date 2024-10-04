@@ -85,3 +85,39 @@ func (app *application) AuthMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+func (app *application) checkPostOwnerShip(role string, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value(userCtx).(*store.User)
+		post := r.Context().Value(postCtx).(*store.Post)
+
+		if post.UserID == user.ID {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		allow, err := app.checkPriority(r.Context(), user, role)
+		if err != nil {
+			app.internalServerError(w, r, err)
+			return
+		}
+
+		if !allow {
+			app.forbiddenResponse(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	}
+}
+
+func (app *application) checkPriority(ctx context.Context, user *store.User, roleName string) (bool, error) {
+	role, err := app.storage.Roles.GetByName(ctx, roleName)
+	if err != nil {
+		return false, err
+	}
+
+	// Check user's role >= base level => allow update
+	// moderator  			>=  moderator
+	return user.Role.Level >= role.Level, nil
+}
