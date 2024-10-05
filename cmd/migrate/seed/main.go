@@ -17,5 +17,5 @@ func main() {
 
 	storage := store.NewStorage(conn)
 
-	database.Seed(storage)
+	database.Seed(storage, conn)
 }
