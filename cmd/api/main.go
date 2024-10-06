@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"expvar"
 	"github.com/joho/godotenv"
 	"github.com/minhnghia2k3/GOssage/internal/auth"
 	"github.com/minhnghia2k3/GOssage/internal/database"
@@ -12,6 +13,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"log"
+	"runtime"
 	"time"
 )
 
@@ -130,6 +132,15 @@ func main() {
 		authenticator: jwtAuthenticator,
 		cacheStorage:  redisStorage,
 	}
+
+	// Metric collected
+	expvar.NewString("version").Set(version)
+	expvar.Publish("database", expvar.Func(func() any {
+		return db.Stats()
+	}))
+	expvar.Publish("goroutines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
 
 	h := app.mount()
 
