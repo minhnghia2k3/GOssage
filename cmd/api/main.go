@@ -86,7 +86,7 @@ func main() {
 		logger.Fatal(err)
 	}
 	defer db.Close()
-	logger.Info("Database connection pool established\n")
+	logger.Info("Database connection pool established")
 
 	// Initialize storage layer
 	s := store.NewStorage(db)

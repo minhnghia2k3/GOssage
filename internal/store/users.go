@@ -30,7 +30,7 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	IsActive  bool      `json:"is_active"`
 	RoleID    int64     `json:"role_id"`
-	Role      Role      `json:"role"`
+	Role      Role      `json:"role,omitempty"`
 }
 
 type password struct {
