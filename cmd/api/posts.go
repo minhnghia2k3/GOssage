@@ -21,7 +21,10 @@ type UpdatePostPayload struct {
 	Tags    []string `json:"tags" validate:"omitempty,dive,lte=100"`
 }
 
-const postCtx = "post"
+const (
+	postCtx contextType = "post"
+	postID  string      = "postID"
+)
 
 // getPostHandler gets post by provided post ID,
 // then get all its comments,
@@ -168,7 +171,7 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 //	@Failure		500	{object}	error
 //	@Router			/posts/{postID} [delete]
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
-	postID, err := parseID(r, "postID")
+	postID, err := parseID(r, postID)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -200,7 +203,7 @@ func parseID(r *http.Request, key string) (int64, error) {
 // getPostMiddleware gets post by given postID and used as a middleware.
 func (app *application) getPostMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		postID, err := parseID(r, "postID")
+		postID, err := parseID(r, postID)
 		if err != nil {
 			app.internalServerError(w, r, err)
 			return

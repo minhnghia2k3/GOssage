@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"github.com/minhnghia2k3/GOssage/internal/store"
 	"net/http"
 )
@@ -48,7 +47,7 @@ func (app *application) getUserFeedHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	feed, err := app.storage.Posts.GetUserFeed(context.Background(), userID, p)
+	feed, err := app.storage.Posts.GetUserFeed(r.Context(), userID, p)
 	if err != nil {
 		app.internalServerError(w, r, err)
 		return

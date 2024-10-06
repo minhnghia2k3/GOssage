@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/minhnghia2k3/GOssage/docs"
-	_ "github.com/minhnghia2k3/GOssage/docs"
 	"github.com/minhnghia2k3/GOssage/internal"
 	"github.com/minhnghia2k3/GOssage/internal/auth"
 	"github.com/minhnghia2k3/GOssage/internal/env"

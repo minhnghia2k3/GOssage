@@ -62,13 +62,15 @@ func (s *PostStorage) GetUserFeed(ctx context.Context, userID int64, fq Paginate
 		LIMIT $2 OFFSET $3
 	`
 
-	ctx, cancel := context.WithTimeout(context.Background(), QueryTimeOutDuration)
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeOutDuration)
 	defer cancel()
 
 	rows, err := s.db.QueryContext(ctx, query, userID, fq.Limit, fq.Offset, fq.Search)
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	var feed []PostWithMetadata

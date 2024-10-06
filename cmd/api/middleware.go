@@ -13,44 +13,24 @@ import (
 	"time"
 )
 
-const userCtx = "user"
+type contextType string
 
-func (app *application) userContextMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID := int64(1)
-		//if err != nil {
-		//	app.badRequestResponse(w, r, err)
-		//	return
-		//}
-
-		user, err := app.storage.Users.GetByID(r.Context(), userID)
-
-		if err != nil {
-			switch {
-			case errors.Is(err, store.ErrNotFound):
-				app.notFoundResponse(w, r, err)
-			default:
-				app.internalServerError(w, r, err)
-			}
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), userCtx, user)
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
+const (
+	userCtx             contextType = "user"
+	authorizationHeader string      = "Authorization"
+	bearer              string      = "Bearer"
+)
 
 func (app *application) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		header := r.Header.Get("Authorization")
+		header := r.Header.Get(authorizationHeader)
 		if header == "" {
 			app.unauthorizedErrorResponse(w, r, errors.New("missing Authorization header"))
 			return
 		}
 
 		parts := strings.Split(header, " ")
-		if len(parts) != 2 && parts[0] != "Bearer" {
+		if len(parts) != 2 && parts[0] != bearer {
 			app.unauthorizedErrorResponse(w, r, errors.New("invalid Authorization header"))
 			return
 		}
@@ -165,13 +145,14 @@ func (app *application) rateLimiter(next http.Handler) http.Handler {
 			time.Sleep(time.Minute)
 
 			m.Lock()
-			defer m.Unlock()
 
 			for ip, cl := range clients {
 				if time.Since(cl.lastSeen) > time.Minute*3 {
 					delete(clients, ip)
 				}
 			}
+
+			m.Unlock()
 		}
 	}()
 
