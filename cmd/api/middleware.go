@@ -4,9 +4,13 @@ import (
 	"context"
 	"errors"
 	"github.com/minhnghia2k3/GOssage/internal/store"
+	"golang.org/x/time/rate"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 const userCtx = "user"
@@ -142,4 +146,61 @@ func (app *application) checkPriority(ctx context.Context, user *store.User, rol
 	// Check user's role >= base level => allow update
 	// moderator  			>=  moderator
 	return user.Role.Level >= role.Level, nil
+}
+
+func (app *application) rateLimiter(next http.Handler) http.Handler {
+	type client struct {
+		limiter  *rate.Limiter
+		lastSeen time.Time
+	}
+
+	var (
+		m       sync.Mutex // mutual exclusion lock - prevent race condition
+		clients = make(map[string]*client)
+	)
+
+	// Goroutines removes old entries from the clients map
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+
+			m.Lock()
+			defer m.Unlock()
+
+			for ip, cl := range clients {
+				if time.Since(cl.lastSeen) > time.Minute*3 {
+					delete(clients, ip)
+				}
+			}
+		}
+	}()
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.config.limiter.enabled {
+			ip, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				app.internalServerError(w, r, err)
+				return
+			}
+
+			// Lock the mutex to prevent executed concurrently
+			m.Lock()
+			defer m.Unlock()
+
+			// Check if the ip addr already exists in clients map
+			if _, exists := clients[ip]; !exists {
+				clients[ip] = &client{
+					limiter:  rate.NewLimiter(rate.Limit(app.config.limiter.rps), int(app.config.limiter.burst)),
+					lastSeen: time.Now(),
+				}
+			}
+
+			if !clients[ip].limiter.Allow() {
+				app.rateLimitExceededResponse(w, r)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+	})
 }

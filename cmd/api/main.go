@@ -69,6 +69,11 @@ func main() {
 			db:      env.GetInt("REDIS_DATABASE", 0),
 			enabled: env.GetBool("REDIS_ENABLED", false),
 		},
+		limiter: limiterConfig{
+			rps:     env.GetFloat64("RATE_LIMITER_RPS", 2),
+			burst:   int64(env.GetInt("RATE_LIMITER_BURST", 4)),
+			enabled: env.GetBool("RATE_LIMITER_ENABLED", true),
+		},
 	}
 
 	// Initialize structured logger

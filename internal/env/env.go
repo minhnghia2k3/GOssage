@@ -32,6 +32,20 @@ func GetInt(key string, fallback int) int {
 	return intVal
 }
 
+func GetFloat64(key string, fallback float64) float64 {
+	val := os.Getenv(key)
+	if val == "" {
+		return fallback
+	}
+
+	floatVal, err := strconv.ParseFloat(key, 64)
+	if err != nil {
+		return fallback
+	}
+
+	return floatVal
+}
+
 func GetBool(key string, fallback bool) bool {
 	val := os.Getenv(key)
 	if val == "" {

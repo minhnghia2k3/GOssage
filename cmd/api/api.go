@@ -40,6 +40,13 @@ type config struct {
 	frontendURL string
 	auth        authConfig
 	redisConfig redisConfig
+	limiter     limiterConfig
+}
+
+type limiterConfig struct {
+	rps     float64
+	burst   int64
+	enabled bool
 }
 
 type redisConfig struct {
@@ -98,6 +105,7 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(app.rateLimiter)
 
 	// Define routes
 	r.Route("/v1", func(r chi.Router) {
@@ -177,7 +185,7 @@ func (app *application) serve(h http.Handler) error {
 	}()
 
 	app.logger.Infow("Server is running...", "addr", app.config.addr, "env", app.config.env)
-	
+
 	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
