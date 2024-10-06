@@ -128,7 +128,9 @@ func main() {
 
 	h := app.mount()
 
-	logger.Fatal(app.serve(h))
+	if err = app.serve(h); err != nil {
+		logger.Fatal(err)
+	}
 }
 
 func initLogger() *zap.SugaredLogger {
