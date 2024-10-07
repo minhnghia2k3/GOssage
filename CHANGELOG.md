@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/minhnghia2k3/GOssage/compare/v1.0.0...v1.1.0) (2024-10-07)
+
+
+### Features
+
+* update api version automatically ([210f5c3](https://github.com/minhnghia2k3/GOssage/commit/210f5c3e64f8fb0eb9e0aec11821819f622210c3))
+
 ## 1.0.0 (2024-10-06)
 
 
