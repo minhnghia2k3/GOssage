@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/minhnghia2k3/GOssage/compare/v1.2.0...v1.3.0) (2024-10-07)
+
+
+### Features
+
+* add layout & update readme ([f5dabbf](https://github.com/minhnghia2k3/GOssage/commit/f5dabbfa8ee9b31e97323caeb89c5a376e1c789f))
+
 ## [1.2.0](https://github.com/minhnghia2k3/GOssage/compare/v1.1.0...v1.2.0) (2024-10-07)
 
 
