@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-const version = "0.0.1"
+const version = "1.1.0"
 
 func init() {
 	if err := godotenv.Load(); err != nil {
