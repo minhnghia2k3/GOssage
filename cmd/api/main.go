@@ -17,6 +17,8 @@ import (
 	"time"
 )
 
+const version = "0.0.1"
+
 func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Error loading .env file: %v\n", err)

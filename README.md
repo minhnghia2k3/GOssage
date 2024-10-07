@@ -20,6 +20,7 @@ Tech stack
 
 - Swagger for docs
 - Golang migrate for migrations
+- Setting up automation workflows (audit,release,versioning...)
 
 
 
