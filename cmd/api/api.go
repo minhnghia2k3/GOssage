@@ -87,8 +87,6 @@ type dbConfig struct {
 	maxIdleTime  string
 }
 
-const version = "0.0.1"
-
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
 
