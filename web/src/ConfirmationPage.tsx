@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom"
 import { API_URL } from "./App"
+
 export const ConfirmationPage = () => {
     const { token = '' } = useParams()
     const redirect = useNavigate()

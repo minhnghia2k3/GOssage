@@ -1,42 +1,105 @@
-#root {
-  max-width: 1280px;
+body {
+  font-family: 'Courier New', Courier, monospace;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 0 20px;
+}
+
+.header {
+  border-bottom: 1px solid #cccccc;
+  padding: 20px 0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #000000;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.nav {
+  display: flex;
+  gap: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.nav-link {
+  text-decoration: none;
+  color: #000000;
 }
 
-.card {
-  padding: 2em;
+.main {
+  display: flex;
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
-.read-the-docs {
-  color: #888;
+.content {
+  flex: 2;
+  padding-right: 40px;
+}
+
+.sidebar {
+  flex: 1;
+}
+
+.sidebar-section {
+  background-color: #f0f0f0;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.button {
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.footer {
+  border-top: 1px solid #cccccc;
+  padding: 20px 0;
+  text-align: center;
+}
+
+pre {
+  background-color: #f0f0f0;
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'Courier New', Courier, monospace;
 }
