@@ -1,5 +1,5 @@
 # Gossage
-
+t
 **Gossage** is a modern social platform designed to foster user interaction through follows, post creation, and comment
 engagement. Built with Go (Golang), it leverages PostgreSQL for data storage, Redis for caching, and Docker for
 streamlined deployment.
